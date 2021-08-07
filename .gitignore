@@ -137,4 +137,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 {"mode":"full","isActive":false}
-ClickCrop/yolo-coco/yolov3.weights
+data/
