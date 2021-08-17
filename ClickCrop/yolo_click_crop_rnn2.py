@@ -301,3 +301,7 @@ plt.show()
 #python yolo_click_crop2.py --image image_0.jpg --yolo yolo-coco
 # python yolo_click_crop2.py --image image_0.jpg --yolo yolo-coco
 
+
+
+
+
