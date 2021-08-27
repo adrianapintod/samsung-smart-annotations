@@ -20,3 +20,5 @@ http://www.cs.toronto.edu/polyrnn/models/checkpoints_cityscapes.tar.gz
     python yolo_click_crop_rnn2.py --image dog.jpg --yolo yolo-coco
 
 3. Double click to crop and crop image is saved in the same directory.
+
+4. Updates
