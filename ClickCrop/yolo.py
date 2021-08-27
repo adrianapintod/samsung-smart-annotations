@@ -121,25 +121,33 @@ def get_prediction(image, net, LABELS, COLORS):
 				classIDs.append(classID)
 
 
-	# # apply non-maxima suppression to suppress weak, overlapping bounding
-	# # boxes
-	# idxs = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE, THRESHOLD)
-
-
-	# # ensure at least one detection exists
-	# if len(idxs) > 0:
-	# 	# loop over the indexes we are keeping
-	# 	for i in idxs.flatten():
-	# 		# extract the bounding box coordinates
-	# 		(x, y) = (boxes[i][0], boxes[i][1])
-	# 		(w, h) = (boxes[i][2], boxes[i][3])
+	# apply non-maxima suppression to suppress weak, overlapping bounding
+	# boxes
+	idxs = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE, THRESHOLD)
+	objects = []
+	# ensure at least one detection exists
+	if len(idxs) > 0:
+		# loop over the indexes we are keeping
+		for i in idxs.flatten():
+			# extract the bounding box coordinates
+			(x, y) = (boxes[i][0], boxes[i][1])
+			(w, h) = (boxes[i][2], boxes[i][3])
+			objects.append({
+				"index": i.item(),
+				"class": LABELS[classIDs[i]],
+				"confidence":  confidences[i],
+				"box": [
+					[x, y],
+					[x + w, y + h]
+				],
+			})
 	# 		# draw a bounding box rectangle and label on the image
 	# 		color = [int(c) for c in COLORS[classIDs[i]]]
 	# 		cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
 	# 		text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
 	# 		cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-	return (boxes, centers, classIDs, confidences)
+	return objects
     
 
 def get_bounding_boxes(image):
@@ -149,6 +157,6 @@ def get_bounding_boxes(image):
     weights = get_weights(WEIGHTS_PATH)
     nets = load_model(config, weights)
     colors = get_colors(labels)
-    res = get_prediction(img, nets, labels, colors)
-    print(res)
+    objects = get_prediction(img, nets, labels, colors)
+    return objects
     

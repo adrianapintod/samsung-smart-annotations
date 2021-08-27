@@ -44,8 +44,11 @@ def upload_image():
 @app.route('/images/<img_id>/bounding-boxes', methods=['GET'])
 def get_bbox(img_id):
     img = os.path.join(app.config["IMAGE_UPLOADS"], img_id)
-    get_bounding_boxes(img)
-    return Response(response={'hola': 'mundo'}, status=200)
+    objects = get_bounding_boxes(img)
+    return {"data": get_bounding_boxes(img)}, 200
+    # return Response(response={'hola': 'mundo'}, status=200)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
