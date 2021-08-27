@@ -1,0 +1,52 @@
+<!<!DOCTYPE html>
+<html>
+  <head>
+    <title>Smart Annotation Tool</title>
+  </head>
+  <body>
+    <h1>Smart Annotation Tool</h1>
+    <div class="form">
+      <form method="post" action="/" enctype="multipart/form-data">
+        <h2>Select a file to upload</h2>
+        <p>
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+          {% endwith %}
+          <input type="file" name="file" class="form-control" autocomplete="off" required>
+        </p>
+        <p>
+          <input type="submit" name = "submit" value="upload" class="btn btn-info">
+        </p>
+      </form>
+    </div>
+    {% if filename %}
+        <div>
+            <img src="{{ url_for('display_image', filename=filename) }}">
+        </div>
+
+    {% endif %}
+    <div class=predict>
+      <form method="post" action="{{ url_for('poly_predict', filename=filename) }}">
+        <input type="submit" name ="predict" class="btn btn-info" value = "poly-predict" href="/poly/{{filename}}">
+      </form>
+      {% if prediction %}
+      <div>
+        <img src="data:image/png;base64,{{ fig }}" alt="Image Placeholder"/>
+        <p>
+          <button type="button">Edit Polygon</button>
+          <button type="button">Save &amp Annotate</button>
+        </p>
+      </div>
+
+    </div>
+
+	{% endif %}
+  </body>
+</html>
