@@ -141,3 +141,5 @@ data/
 ClickCrop/yolo-coco/yolov3.weights
 .vscode
 imgs/*.jpg
+imgs/*.png
+db.sqlite

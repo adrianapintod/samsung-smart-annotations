@@ -34,6 +34,7 @@ Pillow = "==5.0.0"
 PyWavelets = "==0.5.2"
 Werkzeug = ">=0.14.1"
 flask = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 autopep8 = "*"
