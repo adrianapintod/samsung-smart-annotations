@@ -11,6 +11,7 @@ import matplotlib.patches as patches
 import io
 import base64
 from io import BytesIO
+from predict_poly import load_model
 
 
 
@@ -18,6 +19,8 @@ app = Flask(__name__)
 app.secret_key = "supposedlysecretkey"
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 ALLOWED_EXTENSIONS = set(['png','jpg','jpeg'])
+model,polySess, ggnnModel,ggnnSess = load_model(_BATCH_SIZE = 1)
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -52,7 +55,7 @@ def display_image(filename):
 def poly_predict(filename):
     print('predict file name:' + filename)
     img_path = 'static/uploads/' + filename
-    img_points,poly_points = polygon_detection(img_path)
+    img_points,poly_points = polygon_detection(model,polySess, ggnnModel,ggnnSess,img_path)
     print("plotting the graph")
     fig = vis_polys(img_points,poly_points,'Object Polygon')
     buf = io.BytesIO()

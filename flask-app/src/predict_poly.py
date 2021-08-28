@@ -11,18 +11,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-
-def load_resize_img(img_path = 'image.png'):
-    im = Image.open(img_path)
-    width, height = im.size
-    #print(width, height)
-    newsize = (224, 224)
-    im1 = im.resize(newsize)
-    new_img = 'image_resize.png'
-    im1 = im1.save(new_img)
-    return new_img
-def polygon_detection(img_path = 'image.png',_BATCH_SIZE = 1, _FIRST_TOP_K = 6 ):
-
+def load_model(_BATCH_SIZE = 1):
     PolyRNN_metagraph='../models/poly/polygonplusplus.ckpt.meta'
     PolyRNN_checkpoint='../models/poly/polygonplusplus.ckpt'
     EvalNet_checkpoint='../models/evalnet/evalnet.ckpt'
@@ -66,6 +55,22 @@ def polygon_detection(img_path = 'image.png',_BATCH_SIZE = 1, _FIRST_TOP_K = 6 )
 
     ggnnModel.saver.restore(ggnnSess,GGNN_checkpoint)
     print("Model is initialized")
+    return model,polySess, ggnnModel,ggnnSess
+    
+
+
+def load_resize_img(img_path = 'image.png'):
+    im = Image.open(img_path)
+    width, height = im.size
+    #print(width, height)
+    newsize = (224, 224)
+    im1 = im.resize(newsize)
+    new_img = 'image_resize.png'
+    im1 = im1.save(new_img)
+    return new_img
+
+
+def polygon_detection(model,polySess, ggnnModel,ggnnSess, img_path = 'image.png', _FIRST_TOP_K = 6):
 
     crop_path = load_resize_img(img_path)
     print('image loaded successfully')
