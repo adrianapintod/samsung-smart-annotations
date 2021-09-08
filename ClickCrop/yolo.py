@@ -140,6 +140,9 @@ def get_prediction(image, net, LABELS, COLORS):
 					[x, y],
 					[x + w, y + h]
 				],
+				"width": w,
+				"height": h,
+				"center": [centers[i][0].item(), centers[i][1].item()]
 			})
 	# 		# draw a bounding box rectangle and label on the image
 	# 		color = [int(c) for c in COLORS[classIDs[i]]]

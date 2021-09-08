@@ -143,3 +143,4 @@ ClickCrop/yolo-coco/yolov3.weights
 imgs/*.jpg
 imgs/*.png
 db.sqlite
+ClickCrop/polyrnn/models
