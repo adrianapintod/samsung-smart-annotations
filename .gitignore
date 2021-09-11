@@ -144,3 +144,9 @@ imgs/*.jpg
 imgs/*.png
 db.sqlite
 ClickCrop/polyrnn/models
+
+imgs/crops/*.png
+imgs/uploads/*.png
+imgs/uploads/*.jpg
+imgs/crops_poly/*.png
+imgs/results/*.png

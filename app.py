@@ -1,27 +1,23 @@
-import os
-from flask import (
-    Flask, 
-    redirect, 
-    render_template,
-    request,
-    jsonify,
-)
-from werkzeug.utils import secure_filename
-from ClickCrop.yolo import (
-    get_bounding_boxes,
-)
-from ClickCrop.polyrnn import select_bbox, calc_polygon
-from entities import Polygon, db, Image as DbImage, BoundingBox
-from PIL import Image
-import uuid
-import pathlib
 # import models
 import json
+import os
+import pathlib
+import uuid
+
 import numpy as np
+from flask import Flask, jsonify, redirect, render_template, request
+from PIL import Image
+from werkzeug.utils import secure_filename
+
+from ClickCrop.polyrnn import calc_polygon, draw_results, select_bbox
+from ClickCrop.yolo import get_bounding_boxes
+from entities import BoundingBox
+from entities import Image as DbImage
+from entities import Polygon, db
 
 app = Flask(__name__)
 
-app.config["IMAGE_UPLOADS"] = "./imgs"
+app.config["IMAGE_UPLOADS"] = "./imgs/uploads"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 db.init_app(app)
 with app.app_context():
@@ -83,17 +79,13 @@ def get_polygon(img_id):
     image = DbImage.query.get(img_id)
     x_coord = int(request.args.get('x'))
     y_coord = int(request.args.get('y'))
-    roi = select_bbox(image, x_coord, y_coord)
+    roi, coords = select_bbox(image, x_coord, y_coord)
     polygon = calc_polygon(roi)
-    # print("POLYGONNNN:", polygon)
-    # print("TYPEEE:", type(polygon))
-    print("POLYGONNNN:", polygon)
-    print("TYPEEE:", type(polygon))
-    # polygon = polygon.tolist()
-    # polygon = json.dumps({"coordinates": polygon})
-    # polygon = np.array(polygon).tolist()
+    draw_results(image, polygon, coords)
+    # print("POLYGON:", polygon)
+    # print("TYPE:", type(polygon))
     poly = Polygon(
-        poly_vertices=json.dumps(polygon[0].tolist()),
+        poly_vertices=json.dumps(polygon.tolist()),
         image_id=image.id
     )
     db.session.add(poly)
@@ -101,7 +93,7 @@ def get_polygon(img_id):
     return {"data": 
         {
             'id': poly.id,
-            'coordinates': polygon[0].tolist(),
+            'coordinates': polygon.tolist(),
             'image': poly.image_id,
         }
     }, 200

@@ -6,15 +6,14 @@ import skimage.draw as draw
 
 
 def vis_polys(ax, img, poly, title=''):
-    h, w = img.shape[:2]
     ax.imshow(img, aspect='equal')
     patch_poly = patches.Polygon(poly, alpha=0.6, color='blue')
     ax.add_patch(patch_poly)
     poly = np.append(poly, [poly[0, :]], axis=0)
     #
-    ax.plot(poly[:, 0] * w, poly[:, 1] * h, '-o', linewidth=2, color='orange')
+    ax.plot(poly[:, 0], poly[:, 1], '-o', markersize=1, linewidth=1, color='orange')
     # first point different color
-    ax.plot(poly[0, 0] * w, poly[0, 1] * h, '-o', linewidth=3, color='blue')
+    ax.plot(poly[0, 0], poly[0, 1], '-o', markersize=1, linewidth=1, color='blue')
     ax.set_title(title)
     ax.axis('off')
 
