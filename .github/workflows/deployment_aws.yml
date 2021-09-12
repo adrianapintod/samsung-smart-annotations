@@ -57,5 +57,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
+        service: smart-annotation-system-service
         cluster: smart-annotation-system-cluster
         wait-for-service-stability: true

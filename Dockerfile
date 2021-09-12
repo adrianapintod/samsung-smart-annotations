@@ -1,6 +1,6 @@
 FROM python:3.6-slim
 
-ENV PYTHONPATH=$PYTHONPATH:./src
+ENV PYTHONPATH=$PYTHONPATH:/app/src
 
 RUN apt-get update && apt-get upgrade -y
 
