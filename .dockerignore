@@ -2,3 +2,15 @@
 README.md
 requirements.txt
 Dockerfile
+src/checkpoints/polyrnn/*
+src/checkpoints/yolo/yolov3.weights
+imgs/uploads/*.jpg
+imgs/uploads/*.png
+imgs/crops/*.png
+imgs/crops_poly/*.png
+imgs/results/*.png
+docs/
+notebooks/
+src/db.sqlite
+.env.dist
+.env

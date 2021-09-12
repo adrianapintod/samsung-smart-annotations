@@ -1,5 +1,7 @@
 FROM python:3.6-slim
 
+ENV PYTHONPATH=$PYTHONPATH:./src
+
 RUN apt-get update && apt-get upgrade -y
 
 RUN apt-get install python3-opencv -y
@@ -12,12 +14,12 @@ COPY Pipfile Pipfile.lock ./
 
 RUN pipenv install --system --deploy --ignore-pipfile
 
-ADD https://pjreddie.com/media/files/yolov3.weights /app/
+ADD https://pjreddie.com/media/files/yolov3.weights ./src/checkpoints/yolo/
 
-ADD http://www.cs.toronto.edu/polyrnn/models/checkpoints_cityscapes.tar.gz /app/models/
+ADD https://www.cs.toronto.edu/polyrnn/models/checkpoints_cityscapes.tar.gz ./src/checkpoints/polyrnn/
 
-RUN cd /app/models/ && tar -xzf checkpoints_cityscapes.tar.gz && rm checkpoints_cityscapes.tar.gz
+RUN cd ./src/checkpoints/polyrnn/ && tar -xzf checkpoints_cityscapes.tar.gz && rm checkpoints_cityscapes.tar.gz && mv ./models/* ./ && rm -rf ./models 
 
-COPY . .
+COPY . ./
 
-CMD ["/bin/bash"]
+CMD ["python", "src/app.py"]

@@ -1,6 +1,7 @@
-import tensorflow as tf
-import utils
 import numpy as np
+import tensorflow as tf
+
+import utils
 
 
 class GGNNPolygonModel(object):

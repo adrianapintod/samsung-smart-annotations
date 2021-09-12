@@ -1,16 +1,15 @@
 import tensorflow as tf
 
-from EvalNet import EvalNet
-from GGNNPolyModel import GGNNPolygonModel
-from PolygonModel import PolygonModel
+from models.EvalNet import EvalNet
+from models.GGNNPolyModel import GGNNPolygonModel
+from models.PolygonModel import PolygonModel
 
-POLYRNN_METAGRAPH='./ClickCrop/polyrnn/models/poly/polygonplusplus.ckpt.meta'
-POLYRNN_CHECKPOINT='./ClickCrop/polyrnn/models/poly/polygonplusplus.ckpt'
-EVALNET_CHECKPOINT='./ClickCrop/polyrnn/models/evalnet/evalnet.ckpt'
-GGNN_METAGRAPH='./ClickCrop/polyrnn/models/ggnn/ggnn.ckpt.meta'
-GGNN_CHECKPOINT='./ClickCrop/polyrnn/models/ggnn/ggnn.ckpt'
+POLYRNN_METAGRAPH='./src/checkpoints/polyrnn/poly/polygonplusplus.ckpt.meta'
+POLYRNN_CHECKPOINT='./src/checkpoints/polyrnn/poly/polygonplusplus.ckpt'
+EVALNET_CHECKPOINT='./src/checkpoints/polyrnn/evalnet/evalnet.ckpt'
+GGNN_METAGRAPH='./src/checkpoints/polyrnn/ggnn/ggnn.ckpt.meta'
+GGNN_CHECKPOINT='./src/checkpoints/polyrnn/ggnn/ggnn.ckpt'
 _BATCH_SIZE=1
-_FIRST_TOP_K = 6
 
 # Creating the graphs
 evalGraph = tf.Graph()

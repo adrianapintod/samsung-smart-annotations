@@ -1,7 +1,10 @@
 # import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.use('agg')
+import cv2
 import matplotlib.patches as patches
 import numpy as np
-import cv2
 import skimage.draw as draw
 
 

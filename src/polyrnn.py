@@ -1,32 +1,33 @@
-import argparse
 import os
-import pathlib
-import time
 import uuid
 from math import hypot
 
+import matplotlib
+
+matplotlib.use('agg')
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import skimage.io as io
 import tensorflow as tf
-from entities import BoundingBox
+import boto3
 
 import utils
-from EvalNet import EvalNet
-from GGNNPolyModel import GGNNPolygonModel
-from models import ggnnModel, ggnnSess, model, polySess
+from entities import BoundingBox
+from models_init import ggnnModel, ggnnSess, model, polySess
 from poly_utils import vis_polys
-from PolygonModel import PolygonModel
 
-IMAGE_UPLOADS = "./imgs/crops"
-POLYGON_UPLOADS = "./imgs/crops_poly"
-RESULT_UPLOADS = "./imgs/results"
-POLYRNN_METAGRAPH='./ClickCrop/polyrnn/models/poly/polygonplusplus.ckpt.meta'
-POLYRNN_CHECKPOINT='./ClickCrop/polyrnn/models/poly/polygonplusplus.ckpt'
-EVALNET_CHECKPOINT='./ClickCrop/polyrnn/models/evalnet/evalnet.ckpt'
-GGNN_METAGRAPH='./ClickCrop/polyrnn/models/ggnn/ggnn.ckpt.meta'
-GGNN_CHECKPOINT='./ClickCrop/polyrnn/models/ggnn/ggnn.ckpt'
+s3_client = boto3.client('s3', config= boto3.session.Config(signature_version='s3v4'))
+
+IMAGE_UPLOADS = "imgs/crops"
+POLYGON_UPLOADS = "imgs/crops_poly"
+RESULT_UPLOADS = "imgs/results"
+POLYRNN_METAGRAPH='./src/checkpoints/polyrnn/poly/polygonplusplus.ckpt.meta'
+POLYRNN_CHECKPOINT='./src/checkpoints/polyrnn/poly/polygonplusplus.ckpt'
+EVALNET_CHECKPOINT='./src/checkpoints/polyrnn/evalnet/evalnet.ckpt'
+GGNN_METAGRAPH='./src/checkpoints/polyrnn/ggnn/ggnn.ckpt.meta'
+GGNN_CHECKPOINT='./src/checkpoints/polyrnn/ggnn/ggnn.ckpt'
+_FIRST_TOP_K = 6
 
 def distance(p1, p2):
 #"""Euclidean distance between two points."""
@@ -36,6 +37,7 @@ def distance(p1, p2):
 	return hypot(xx2 - xx1, yy2 - yy1)
 
 def select_bbox(img, x, y):
+	s3_client.download_file(os.getenv("BUCKET"), img.path, img.path)
 	image = cv2.imread(img.path)[:, :, ::-1]
 	bounding_boxes = BoundingBox.query.filter_by(image_id=img.id).all()
 	click_pos = (x, y)
@@ -47,11 +49,6 @@ def select_bbox(img, x, y):
 	w = bounding_boxes[index].width
 	h = bounding_boxes[index].height
 	hw = max(w, h)
-
-	# x1 = bounding_boxes[index].bbox_x1
-	# y1 = bounding_boxes[index].bbox_y1
-	# x2 = bounding_boxes[index].bbox_x2
-	# y2 = bounding_boxes[index].bbox_y2
 
 	enlarge_factor = 1.1
 	x1 = round(max(x + w / 2 - enlarge_factor * hw / 2, 1))
@@ -69,9 +66,6 @@ def select_bbox(img, x, y):
 	return roi, (x1, y1)
 
 def calc_polygon(img):
-	# _BATCH_SIZE=1
-	_FIRST_TOP_K = 6
-
 	newsize = (224, 224)
 	im1 = cv2.resize(img, newsize)
 	image_np = np.expand_dims(im1, axis=0)
@@ -98,6 +92,7 @@ def calc_polygon(img):
 	fig_name = uuid.uuid4().hex + ".png"
 	fig_path = os.path.join(POLYGON_UPLOADS, fig_name)
 	fig.savefig(fig_path)
+
 	print("Figure stored in: ", fig_path)
 
 	# Calculate coordinates on original ROI - Without resize
@@ -105,7 +100,7 @@ def calc_polygon(img):
 	np_array[:, 0] = np_array[:, 0] * w
 	np_array[:, 1] = np_array[:, 1] * h
 
-	return np_array
+	return np_array, fig_path
 
 def draw_results(img, polygon, coords):
 	# Draw polygon on original image
@@ -120,3 +115,4 @@ def draw_results(img, polygon, coords):
 	fig_path = os.path.join(RESULT_UPLOADS, fig_name)
 	fig.savefig(fig_path)
 	print("Figure stored in: ", fig_path)
+	return fig_path

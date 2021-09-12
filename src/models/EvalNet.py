@@ -1,8 +1,10 @@
-import tensorflow.contrib.layers as layers
 from collections import namedtuple
-import tensorflow as tf
+
 import numpy as np
+import tensorflow as tf
+import tensorflow.contrib.layers as layers
 from tensorflow.contrib import slim
+
 import poly_utils as polyutils
 
 Inputs = namedtuple("Inputs",
@@ -70,7 +72,7 @@ class EvalNet(object):
                 mask = polyutils.polygon_perimeter(p_poly.astype(np.int), img_side=28)
                 mask = np.reshape(mask, [img_h, img_w, 1])
             except:
-                import ipdb;
+                import ipdb
                 ipdb.set_trace()
 
             mask = np.concatenate((mask, mask1), axis=2)

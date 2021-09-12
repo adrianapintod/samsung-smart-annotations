@@ -1,7 +1,10 @@
-import tensorflow as tf
-import numpy as np
-import utils
 from distutils.version import LooseVersion
+
+import numpy as np
+import tensorflow as tf
+
+import utils
+
 
 class PolygonModel(object):
     """Class to load PolygonModel and run inference."""

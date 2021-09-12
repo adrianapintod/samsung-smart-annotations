@@ -36,6 +36,7 @@ Werkzeug = ">=0.14.1"
 flask = "*"
 flask-sqlalchemy = "*"
 tk = "*"
+boto3 = "*"
 
 [dev-packages]
 autopep8 = "*"

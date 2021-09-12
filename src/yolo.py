@@ -5,27 +5,13 @@ from math import hypot
 
 import cv2
 import numpy as np
-# from polyrnn.src.PolygonModel import PolygonModel
-# from polyrnn.src.EvalNet import EvalNet
-# from polyrnn.src.GGNNPolyModel import GGNNPolygonModel
-# import utils
-# from poly_utils import vis_polys
 import skimage.io as io
 import tensorflow as tf
+import boto3
 
-# # construct the argument parse and parse the arguments
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-i", "--image", required=True,
-# 	help="path to input image")
-# ap.add_argument("-y", "--yolo", required=True,
-# 	help="base path to YOLO directory")
-# ap.add_argument("-c", "--confidence", type=float, default=0.5,
-# 	help="minimum probability to filter weak detections")
-# ap.add_argument("-t", "--threshold", type=float, default=0.3,
-# 	help="threshold when applying non-maxima suppression")
-# args = vars(ap.parse_args())
+s3_client = boto3.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
-YOLO_PATH = "./ClickCrop/yolo-coco"
+YOLO_PATH = "./src/checkpoints/yolo"
 LABEL_PATH = "coco.names"
 WEIGHTS_PATH = "yolov3.weights"
 CONFIG_PATH = "yolov3.cfg"
@@ -61,11 +47,12 @@ def load_model(configPath, weightsPath):
     net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
     return net
 
-def load_image(image):
+def load_image(image_path):
     # load our input image and grab its spatial dimensions
-    image = cv2.imread(image)
+	s3_client.download_file(os.getenv("BUCKET"), image_path, image_path)
+	image = cv2.imread(image_path)
     # clone = image.copy()
-    return image
+	return image
 
 def get_prediction(image, net, LABELS, COLORS):
 	(H, W) = image.shape[:2]
@@ -144,11 +131,6 @@ def get_prediction(image, net, LABELS, COLORS):
 				"height": h,
 				"center": [centers[i][0].item(), centers[i][1].item()]
 			})
-	# 		# draw a bounding box rectangle and label on the image
-	# 		color = [int(c) for c in COLORS[classIDs[i]]]
-	# 		cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-	# 		text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-	# 		cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 	return objects
     

@@ -3,22 +3,22 @@ import json
 import os
 import pathlib
 import uuid
+import boto3
 
 import numpy as np
-from flask import Flask, jsonify, redirect, render_template, request
-from PIL import Image
-from werkzeug.utils import secure_filename
+from flask import Flask, request
 
-from ClickCrop.polyrnn import calc_polygon, draw_results, select_bbox
-from ClickCrop.yolo import get_bounding_boxes
+from polyrnn import calc_polygon, draw_results, select_bbox
+from yolo import get_bounding_boxes
 from entities import BoundingBox
 from entities import Image as DbImage
 from entities import Polygon, db
 
 app = Flask(__name__)
 
-app.config["IMAGE_UPLOADS"] = "./imgs/uploads"
+app.config["IMAGE_UPLOADS"] = "imgs/uploads"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+s3_client = boto3.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 db.init_app(app)
 with app.app_context():
     # db.drop_all()
@@ -35,17 +35,27 @@ def upload_image():
         image = request.files["image"]
         img_name = uuid.uuid4().hex + pathlib.Path(image.filename).suffix
         img_path = os.path.join(app.config["IMAGE_UPLOADS"], img_name)
-        image.save(img_path)
+        s3_client.put_object(Body=image, Bucket=os.getenv("BUCKET"), Key=img_path)
+        # image.save(img_path)
         img_record = DbImage(
             name=image.filename,
             path=img_path,
         )
         db.session.add(img_record)
         db.session.commit()
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': os.getenv("BUCKET"),
+                'Key': img_path
+            },
+            ExpiresIn=3600,
+        )
         return {
             'id': img_record.id, 
             'name': img_record.name,
             'path': img_path,
+            'url': url,
         }, 201
         # return redirect(request.url)
     return {'error': 'Empty image'}, 400
@@ -72,7 +82,10 @@ def get_bbox(img_id):
         )
         db.session.add(bbox)
         db.session.commit()
-    return {"data": objects}, 200
+    return {
+        "data": objects,
+            # "url": url,
+    }, 200
 
 @app.route('/images/<img_id>/polygons', methods=['GET'])
 def get_polygon(img_id):
@@ -80,23 +93,45 @@ def get_polygon(img_id):
     x_coord = int(request.args.get('x'))
     y_coord = int(request.args.get('y'))
     roi, coords = select_bbox(image, x_coord, y_coord)
-    polygon = calc_polygon(roi)
-    draw_results(image, polygon, coords)
-    # print("POLYGON:", polygon)
-    # print("TYPE:", type(polygon))
+    polygon, crop_path = calc_polygon(roi)
+    s3_client.upload_file(crop_path, os.getenv("BUCKET"), crop_path)
+    results_path = draw_results(image, polygon, coords)
+    s3_client.upload_file(results_path, os.getenv("BUCKET"), results_path)
     poly = Polygon(
         poly_vertices=json.dumps(polygon.tolist()),
         image_id=image.id
     )
     db.session.add(poly)
     db.session.commit()
-    return {"data": 
-        {
+    crop_url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={
+            'Bucket': os.getenv("BUCKET"),
+            'Key': crop_path
+        },
+        ExpiresIn=3600,
+    )
+    results_url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={
+            'Bucket': os.getenv("BUCKET"),
+            'Key': results_path
+        },
+        ExpiresIn=3600,
+    )
+    return {
+        "data": {
             'id': poly.id,
             'coordinates': polygon.tolist(),
             'image': poly.image_id,
+            'crop_url': crop_url,
+            'results_url': results_url,
         }
     }, 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        host='0.0.0.0',
+        debug=True if os.getenv("DEBUG") == "True" else False,
+        port=os.getenv("PORT"),
+    )
