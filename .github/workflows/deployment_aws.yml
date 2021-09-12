@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - rest-api
+  workflow_dispatch:
 
 name: Deployment to AWS
 
@@ -26,12 +27,14 @@ jobs:
 
     - name: Build container 🏗️
       run: |-
+        docker pull "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
+        docker tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest" "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build"
         docker build \
           --cache-from "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest" \
           .
-              
+
     - name: Publish container 📦
       run: |-
         docker push "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
