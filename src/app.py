@@ -27,7 +27,7 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return "Hello world"
+    return {'message': 'Hola Mundo'}, 200
 
 @app.route('/images', methods=['POST', 'GET'])
 def upload_image():
