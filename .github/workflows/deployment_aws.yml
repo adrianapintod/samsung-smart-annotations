@@ -51,13 +51,7 @@ jobs:
       with:
         task-definition: ./.aws/task_definition.json
         container-name: smart-annotation-system
-        image: "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA"
-
-    - name: Export artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: task-definition
-        path: ./.aws/task_definition.json
+        image: "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
     
     - name: Deploy Amazon ECS task definition 🏧
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
