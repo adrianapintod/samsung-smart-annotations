@@ -28,6 +28,8 @@ jobs:
     - name: Build container 🏗️
       run: |-
         aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${{ secrets.ECR_URL }}"
+        docker pull "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
+        docker tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest" "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build"
         docker build \
           --cache-from "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA" \
@@ -41,7 +43,7 @@ jobs:
 
     - name: Replace Task definition env vars 📝
       run: |-
-        sed -i 's|__AWS_ACCESS_KEY_ID__|'"${{ secrets.AWS_ACCESS_KEY_ID }}"'|g; s|__AWS_SECRET_ACCESS_KEY__|'"${{ secrets.AWS_SECRET_ACCESS_KEY }}"'|g; s|__BUCKET__|'"${{ secrets.BUCKET }}"'|g;'  ./aws/task_definition.json;
+        sed -i 's|__AWS_ACCESS_KEY_ID__|'"${{ secrets.AWS_ACCESS_KEY_ID }}"'|g; s|__AWS_SECRET_ACCESS_KEY__|'"${{ secrets.AWS_SECRET_ACCESS_KEY }}"'|g; s|__BUCKET__|'"${{ secrets.BUCKET }}"'|g;' ./.aws/task_definition.json;
 
     - name: Fill new container in task definition ✍️
       id: render-task-definition
