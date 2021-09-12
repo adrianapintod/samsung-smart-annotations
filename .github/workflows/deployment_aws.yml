@@ -21,12 +21,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Login to Amazon ECR 🖥️
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+    # - name: Login to Amazon ECR 🖥️
+    #   id: login-ecr
+    #   uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build container 🏗️
       run: |-
+        echo ${{ secrets.ECR_PASSWORD }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URL }}
         docker build \
           --cache-from "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA" \
