@@ -50,7 +50,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ./.aws/task_definition.json
-        container-name: smart-annotation-name
+        container-name: smart-annotation-system
         image: ${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA
 
     - name: Deploy Amazon ECS task definition 🏧
