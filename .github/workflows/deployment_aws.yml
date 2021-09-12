@@ -27,7 +27,7 @@ jobs:
 
     - name: Build container 🏗️
       run: |-
-        echo ${{ secrets.ECR_PASSWORD }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URL }}
+        docker login --username AWS --password "${{ secrets.ECR_PASSWORD }}" ${{ secrets.ECR_URL }}
         docker build \
           --cache-from "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA" \
