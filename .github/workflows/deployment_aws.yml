@@ -29,8 +29,9 @@ jobs:
         docker build \
           --cache-from "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:build" \
           --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:$GITHUB_SHA" \
-          --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
-    
+          --tag "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest" \
+          .
+              
     - name: Publish container 📦
       run: |-
         docker push "${{ secrets.ECR_URL }}/${{ secrets.ECR_NAME }}:latest"
