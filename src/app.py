@@ -58,8 +58,8 @@ def upload_image():
             'url': url,
         }, 201
         # return redirect(request.url)
-    # return {'error': 'Empty image'}, 400
-    return render_template("upload_image.html")
+    return {'error': 'Empty image'}, 400
+    # return render_template("upload_image.html")
 
 @app.route('/images/<img_id>/bounding-boxes', methods=['GET'])
 def get_bbox(img_id):
