@@ -138,4 +138,15 @@ dmypy.json
 cython_debug/
 {"mode":"full","isActive":false}
 data/
-ClickCrop/yolo-coco/yolov3.weights
+src/checkpoints/yolo/yolov3.weights
+.vscode
+imgs/*.jpg
+imgs/*.png
+db.sqlite
+src/checkpoints/polyrnn/*
+
+imgs/crops/*.png
+imgs/uploads/*.png
+imgs/uploads/*.jpg
+imgs/crops_poly/*.png
+imgs/results/*.png
